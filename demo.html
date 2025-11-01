@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Samarth Prototype</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f7f6; }
+        #app-container { width: 90%; max-width: 700px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        header { padding: 20px; background: #007bff; color: white; text-align: center; }
+        header h1 { margin: 0; font-size: 24px; }
+        #chat-window { padding: 20px; max-height: 50vh; overflow-y: auto; }
+        #chat-form { display: flex; border-top: 1px solid #eee; padding: 15px; }
+        #chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; font-size: 16px; outline: none; }
+        #send-button { background: #007bff; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; margin-left: 10px; font-size: 20px; cursor: pointer; }
+        .message { margin-bottom: 15px; }
+        .message.user { text-align: right; }
+        .message-bubble { display: inline-block; padding: 10px 15px; border-radius: 18px; max-width: 80%; }
+        .message.user .message-bubble { background: #007bff; color: white; }
+        .message.bot .message-bubble { background: #e9ecef; color: #333; text-align: left; }
+        .message.bot h3, .message.bot h4 { margin-top: 10px; margin-bottom: 5px; }
+        .message.bot ul { margin: 5px 0 5px 20px; padding: 0; }
+        .message.bot code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+    <div id="app-container">
+        <header>
+            <h1>Project Samarth Q&A</h1>
+        </header>
+        <div id="chat-window">
+            <div class="message bot">
+                <span class="message-bubble">
+                    Hello! Ask me a complex, cross-domain question. For example:
+                    <br><br>
+                    <code>Compare rainfall in Karnataka and Maharashtra for the last 3 years, and list the top 2 most produced crops in each.</code>
+                </span>
+            </div>
+        </div>
+        <form id="chat-form">
+            <input type="text" id="chat-input" placeholder="Ask your question..." autocomplete="off">
+            <button id="send-button" type="submit">→</button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatWindow = document.getElementById('chat-window');
+
+        
+        const FAKE_ANSWER_MARKDOWN = `
+### Synthesized Data Report (Years: 2021-2023)
+
+#### Average Annual Rainfall
+- **Karnataka**: 1135.37 mm (Average)
+- **Maharashtra**: 1098.60 mm (Average)
+
+*(Source: https_data.gov.in/india-meteorological-department)*
+
+#### Top 2 Most Produced Crops (by Volume)
+- **For Karnataka**:
+    1. Sugarcane (136,500 tonnes)
+    2. Ragi (56,500 tonnes)
+- **For Maharashtra**:
+    1. Sugarcane (159,000 tonnes)
+    2. Cotton (34,500 tonnes)
+
+*(Source: https_data.gov.in/ministry-of-agriculture)*
+        `;
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            const question = chatInput.value.trim();
+            if (!question) return;
+
+            addMessageToChat('user', question);
+            chatInput.value = '';
+            
+            
+            const loadingMessage = addMessageToChat('bot', 'Thinking...');
+
+            
+            setTimeout(() => {
+                
+                const htmlAnswer = marked.parse(FAKE_ANSWER_MARKDOWN);
+                loadingMessage.innerHTML = htmlAnswer; 
+            }, 3000); 
+        });
+
+        function addMessageToChat(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            const bubbleSpan = document.createElement('span');
+            bubbleSpan.className = 'message-bubble';
+            
+            if (sender === 'user') {
+                bubbleSpan.innerText = text;
+            } else {
+                bubbleSpan.innerHTML = text; 
+            }
+            
+            messageDiv.appendChild(bubbleSpan);
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return bubbleSpan;
+        }
+    </script>
+</body>
+</html>
